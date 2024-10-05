@@ -23,7 +23,6 @@ add_action( 'wp_enqueue_scripts', function() {
 }, 20 );
 
 
-
 add_action('init', 'register_menus');
 
 function register_menus() {
@@ -32,8 +31,6 @@ function register_menus() {
     register_nav_menu('home-menu-unlogged', __('Home Menu Unlogged'));
     register_nav_menu('navbar-menu', __('Navbar Menu'));
 }
-
-
 
 
 add_action("wp_ajax_order_update", "order_update");
@@ -66,10 +63,8 @@ function order_update() {
                 )
             );
         }
-       
     }
 }
-
 
 
 add_action('wp_enqueue_scripts', 'newScripts');
@@ -120,7 +115,6 @@ function check_last_group_el($group_id) {
 }
 
 
-
 add_action("wp_ajax_add_task", "add_task");
 add_action("wp_ajax_nopriv_add_task", "add_task");
 
@@ -163,7 +157,6 @@ function add_task() {
 
     wp_send_json($response);
 }
-
 
 
 add_action("wp_ajax_done_task", "done_task");
@@ -219,7 +212,6 @@ function undone_task() {
 add_action("wp_ajax_remove_task", "remove_task");
 add_action("wp_ajax_nopriv_remove_task", "remove_task");
 
-
 function remove_task() {
     global $wpdb;
     if (isset($_POST['id'])) {
@@ -233,6 +225,7 @@ function remove_task() {
         )
     );
 }
+
 
 function remove_outdated_done_tasks($tasks) {
     foreach($tasks as $task) {
@@ -286,6 +279,7 @@ function check_number_of_tasks_in_group($group_id) {
     $results = $wpdb->get_results( "SELECT * FROM wptd_tasks WHERE task_group = $group_id" );
     return sizeof($results);
 }
+
 
 function check_current_user_group_quantity($user_id) {
     global $wpdb;
@@ -350,29 +344,6 @@ function check_if_user_exist($user_id) {
 }
 
 
-
-
-/*
-function remove_group_member($group_id, $removing_user, $user_to_remove) {
-
-    global $wpdb;
-
-    // dodać funkcję, ktora sprawdza czy usuwający user ma uprawnienia do zarządzania grupą
-
-    $id_to_delete = $wpdb->get_results( "SELECT id FROM wptd_groups_members WHERE group_id = $group_id && target_user_id = $user_to_remove" );
-
-    $wpdb->insert(
-        'wptd_groups_members',
-        array(
-            'group_id' => $group_id,
-            'main_user_id' => $user_id,
-            'target_user_id' => 0,
-            'status' => $status
-        )
-    );
-}
-*/
-
 function check_if_group_relation_exist($group_id, $current_user, $friendID) {
     global $wpdb;
     $result = $wpdb->get_row( "SELECT id FROM wptd_groups_members WHERE group_id = $group_id && main_user_id = $current_user && target_user_id = $friendID" );
@@ -392,13 +363,8 @@ function invite_friend_to_group() {
         $response['friend_id'] = $_POST['friend_id'];
         $response['group_id'] = $_POST['group_id'];
 
-
         $group_id = $_POST['group_id'];
         $friendID = $_POST['friend_id'];
-
-
-
-        // add_group_member($group_id, $friendID, $status = 3)
     } else {
         $response['info'] = 'no data sent';
     }
@@ -431,11 +397,9 @@ function invite_friend_to_group() {
             $response['info'] = 'relacja już istnieje';
         }
     }
-
-
+    
     wp_send_json($response);
 }
-
 
 
 add_action("wp_ajax_add_group", "add_group");
@@ -482,7 +446,6 @@ function add_group() {
 }
 
 
-
 add_action("wp_ajax_delete_group", "delete_group");
 add_action("wp_ajax_nopriv_delete_group", "delete_group");
 
@@ -504,9 +467,9 @@ function delete_group() {
             
         $response['info'] = 'deleted';
     }
+    
     wp_send_json($response);
 }
-
 
 
 add_action("wp_ajax_show_current_user_groups", "show_current_user_groups");
@@ -534,7 +497,6 @@ function get_user_info($id) {
 }
 
 
-
 add_action("wp_ajax_find_user", "find_user");
 add_action("wp_ajax_nopriv_find_user", "find_user");
 
@@ -545,7 +507,7 @@ function find_user() {
         $name = $_POST['name_to_find'];
     }
     $response = $wpdb->get_results( "SELECT id, user_login FROM wptd_users WHERE user_login LIKE '%$name%' LIMIT 10" );
-// $response['data'] = $name;
+
     $user_id = get_current_user_id();
     $current_user_data = get_user_info($user_id);
 
@@ -556,9 +518,9 @@ function find_user() {
     }
     unset($response[$index]);
     $response = json_encode($response);
+    
     wp_send_json($response);
 }
-
 
 
 function check_users_relation($current_user_id, $invitedID) {
@@ -569,14 +531,12 @@ function check_users_relation($current_user_id, $invitedID) {
 }
 
 
-
 function get_user_id_by_user_name($user_name) {
     global $wpdb;
 
     $response = $wpdb->get_row( "SELECT id FROM wptd_users WHERE user_login = '$user_name'" );
     return $response;
 }
-
 
 
 add_action("wp_ajax_get_user_profile", "get_user_profile");
@@ -593,13 +553,10 @@ function get_user_profile() {
 
     $response = $wpdb->get_row( "SELECT id, user_login, user_registered, user_registered FROM wptd_users WHERE id = $target_user_id" );
 
-
     $users_relation = check_users_relation($current_user_id, $target_user_id);
-
 
     $response->me = $current_user_id;
     $response->him = $target_user_id;
-
     
     if (!$users_relation && $target_user_id != $current_user_id) {
         $button_html_code = <<<EOT
@@ -631,6 +588,7 @@ function get_user_profile() {
 
     $response->btn_code = $button_html_code;
     $response = json_encode($response);
+    
     wp_send_json($response);
 }
 
@@ -672,12 +630,10 @@ function invite_friend() {
                 'relation_date' => get_current_date(),
             )
         );
-
     }
 
     wp_send_json($response);
 }
-
 
 
 add_action("wp_ajax_show_friends_relations", "show_friends_relations");
@@ -690,15 +646,13 @@ function show_friends_relations() {
 
     $results = $wpdb->get_results( "SELECT * FROM wptd_users_relations WHERE main_user_id = $current_user_id" );
 
-
     foreach($results as $result) {
         $user_data = get_user_info($result->target_user_id);
         $result->friend_name = $user_data->user_login; 
-    } 
+    }
+    
     wp_send_json($results);
-
 }
-
 
 
 add_action("wp_ajax_show_friends", "show_friends");
@@ -718,7 +672,6 @@ function show_friends($type = null) {
 }
 
 
-
 add_action("wp_ajax_show_friends_not_in_group", "show_friends_not_in_group");
 add_action("wp_ajax_nopriv_show_friends_not_in_group", "show_friends_not_in_group");
 
@@ -727,8 +680,6 @@ function show_friends_not_in_group() {
     $current_user_id = get_current_user_id();
     $group_id = $_POST['group_id'];
 
-    // $friends_not_in_group['a'] = $group_id;
-    // $friends_not_in_group['b'] = $current_user_id;
     $is_user_group_owner = check_if_user_is_group_owner($group_id, $current_user_id);
 
     $friends_not_in_group = array(); 
@@ -754,7 +705,6 @@ function show_friends_not_in_group() {
 }
 
 
-
 add_action("wp_ajax_accept_friend_invitation", "accept_friend_invitation");
 add_action("wp_ajax_nopriv_accept_friend_invitation", "accept_friend_invitation");
 
@@ -769,7 +719,6 @@ function accept_friend_invitation() {
 
     wp_send_json($results);
 }
-
 
 
 add_action("wp_ajax_remove_relation", "remove_relation");
@@ -792,7 +741,6 @@ function remove_relation() {
 }
 
 
-
 function get_group_data($group_id) {
     global $wpdb;
 
@@ -800,7 +748,6 @@ function get_group_data($group_id) {
 
     return $response;
 }
-
 
 
 add_action("wp_ajax_show_groups_relations", "show_groups_relations");
@@ -829,13 +776,12 @@ function show_groups_relations() {
                 $res->target_name = $target_name;
             }
         }
-
+        
         wp_send_json($response);
     } else {
         return null;
     }
 }
-
 
 
 add_action("wp_ajax_accept_group_invitation", "accept_group_invitation");
@@ -853,7 +799,6 @@ function accept_group_invitation() {
     
     wp_send_json($response);
 }
-
 
 
 add_action("wp_ajax_remove_group_relation", "remove_group_relation");
@@ -877,14 +822,11 @@ function remove_group_relation() {
     } else {
         $ids_to_delete = $results[0] -> id;
     }
-
-     
-
+    
     $wpdb->query( "DELETE FROM wptd_groups_members WHERE id IN($ids_to_delete)" );
 
     wp_send_json($res);
 }
-
 
 
 add_action("wp_ajax_leave_group", "leave_group");
@@ -909,7 +851,6 @@ function leave_group() {
 }
 
 
-
 add_action("wp_ajax_show_current_group_members", "show_current_group_members");
 add_action("wp_ajax_nopriv_show_current_group_members", "show_current_group_members");
 
@@ -927,7 +868,7 @@ function show_current_group_members() {
         $result->user_login = $user_data->user_login;
     }
 
-    if(check_if_user_is_group_owner($group_id, $current_user_id)) {
+    if (check_if_user_is_group_owner($group_id, $current_user_id)) {
         array_unshift($results, 'owner');
     } else {
         array_unshift($results, 'user');
@@ -935,7 +876,6 @@ function show_current_group_members() {
 
     wp_send_json($results);
 }
-
 
 
 add_action("wp_ajax_remove_group_member", "remove_group_member");
@@ -964,7 +904,6 @@ function remove_group_member() {
 }
 
 
-
 function show_navbar() {
     if (is_user_logged_in()) {
         wp_nav_menu(array(
@@ -974,7 +913,6 @@ function show_navbar() {
         ));
     }
 }
-
 
 
 function show_home_content() {
