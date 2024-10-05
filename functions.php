@@ -72,7 +72,6 @@ add_action('wp_enqueue_scripts', 'newScripts');
 function newScripts() {
     wp_register_script('script-2', get_template_directory_uri() . '/assets/js/main2.js');
     wp_enqueue_script( 'script-2' );
-   
 }
 
 
@@ -142,6 +141,7 @@ function add_task() {
                         'done_by' => NULL
                     )
                 );
+                
                 $response['info'] = 'Task added'; 
             } else {
                 $response['info'] = 'Task name cant be empty!';
@@ -238,8 +238,6 @@ function remove_outdated_done_tasks($tasks) {
             $done_date_converted = new DateTime($done_date);
             $current_datetime_converted = new DateTime($current_datetime);
 
-            
-            // $bb = new DateTime($current_datetime);
             $done_date_converted->add(new DateInterval('P7D'));
             
             print_r($done_date_converted);
